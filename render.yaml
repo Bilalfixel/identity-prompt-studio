@@ -1,0 +1,15 @@
+# Automatic deployment settings for https://render.com
+services:
+  - type: web
+    name: identity-prompt-studio
+    runtime: python
+    plan: free
+    buildCommand: python -m py_compile server.py
+    startCommand: python server.py --no-browser
+    healthCheckPath: /health
+    envVars:
+      - key: SITE_PASSWORD
+        sync: false
+# To enable AI without entering a key in the browser each time:
+# Add OPENAI_API_KEY as a secret in Render > Environment after deployment.
+# Never paste your API key into this file or GitHub.

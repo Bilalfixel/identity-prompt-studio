@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>IDENTITY / Prompt Studio</title>
+<link rel="stylesheet" href="style.css" />
+<script defer src="app.js"></script>
+</head>
+<body>
+<div class="page-glow" aria-hidden="true"></div>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon"><span class="brand-corners"></span><span class="brand-dot"></span></div><div><strong>IDENTITY<span class="muted-brand"> / </span>STUDIO</strong><span class="brand-subtitle">REFERENCE-LOCKED PROMPT ENGINE</span></div></div>
+    <div class="top-actions"><span class="local-pill"><span class="green-dot"></span> PRIVATE BY DESIGN</span><a href="#how-it-works" class="help-link">How it works <span>↗</span></a></div>
+  </header>
+  <div class="intro">
+    <div class="eyebrow"><span class="eyebrow-line"></span> VISUAL PROMPT SYSTEM <span class="v-tag">1.0</span></div>
+    <h1>Same you.<br><em>Different scene.</em></h1>
+    <p>Upload your identity photos. Show us the image you want to recreate. Get a detailed JSON prompt engineered to protect your exact facial structure and body proportions.</p>
+  </div>
+
+  <main class="layout">
+    <div class="workspace">
+      <div class="section-heading"><span class="heading-number">01</span><span>Image references</span><span class="heading-note">IDENTITY <strong>≠</strong> SCENE</span></div>
+      <div class="reference-grid">
+        <section class="upload-card identity-card" id="identityDrop">
+          <div class="upload-heading"><div class="icon-square identity-icon">◎</div><div><h2>Your identity</h2><p>Who should appear in the result</p></div><span id="refCount" class="count-pill">0 / 4</span></div>
+          <div class="thumbnail-grid" id="referenceGrid"><!-- rendered by JS --></div>
+          <div class="drop-area small-drop" id="referenceDrop" tabindex="0" role="button" aria-label="Add identity photos"><div class="drop-icon">＋</div><b>Add identity photos</b><span>Click or drag photos here</span><small>1–4 photos · JPG, PNG, WebP</small></div>
+          <p class="card-tip"><span class="tip-icon">✦</span> Tip: add a front-facing photo, a ¾ angle, side view, and full-body photo for best coverage.</p>
+          <input id="referenceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
+        </section>
+        <section class="upload-card target-card" id="targetDrop">
+          <div class="upload-heading"><div class="icon-square target-icon">⌗</div><div><h2>Target image</h2><p>The scene you want to recreate</p></div><span class="target-mark">SCENE ONLY</span></div>
+          <div class="target-preview-wrap" id="targetPreviewWrap"><div id="targetEmpty" class="drop-area target-empty" tabindex="0" role="button" aria-label="Upload target image"><span class="upload-glyph">⇧</span><b>Drop the inspiration image</b><span>Or click to browse your files</span><small>We'll borrow the pose, look &amp; scene — not the face</small></div><div class="target-loaded" id="targetLoaded" hidden><img id="targetImage" alt="Your target scene" /><button class="remove-target" id="removeTarget" title="Remove target image" aria-label="Remove target image">×</button><div class="target-image-label" id="targetFilename"></div></div></div>
+          <div class="target-buttons"><button id="chooseTarget" class="secondary-button" type="button"><span>↥</span> Upload image</button><button id="pasteTarget" class="secondary-button" type="button"><span>▣</span> Paste image</button></div>
+          <p class="card-tip"><span class="tip-icon">⌘</span> You can also press <kbd>Ctrl</kbd> + <kbd>V</kbd> anywhere to paste a screenshot.</p>
+          <input id="targetInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+        </section>
+      </div>
+
+      <div class="section-heading options-head"><span class="heading-number">02</span><span>Generation settings</span><span class="heading-note">TAILOR THE RECONSTRUCTION</span></div>
+      <section class="options-card">
+        <div class="option-row"><div><label class="option-label" for="aspectRatio">Output aspect ratio</label><p class="option-desc">Choose a format or match the target image.</p></div><select id="aspectRatio"><option value="auto">Match target (auto)</option><option value="9:16">9:16 — vertical / stories</option><option value="4:5">4:5 — portrait</option><option value="3:4">3:4 — portrait</option><option value="1:1">1:1 — square</option><option value="16:9">16:9 — landscape</option><option value="3:2">3:2 — landscape</option><option value="2:3">2:3 — portrait</option><option value="5:4">5:4 — landscape</option></select></div>
+        <div class="options-divider"></div>
+        <label class="option-label" for="extraInstructions">Additional direction <span class="optional-label">OPTIONAL</span></label>
+        <textarea id="extraInstructions" rows="3" maxlength="2500" placeholder="E.g. Keep my original beard, match the target's yellow night lighting, preserve my exact waist and shoulder proportions..." ></textarea>
+        <div class="options-divider"></div>
+        <div class="api-row"><div class="api-text"><span class="api-icon">✳</span><div><label class="option-label" for="apiKey">AI visual analysis <span class="optional-label">RECOMMENDED</span></label><p class="option-desc">AI analyzes the images using your own API key or the website owner's server key, if configured.</p></div></div><div class="api-input-wrap"><input type="password" id="apiKey" spellcheck="false" autocomplete="off" placeholder="sk-••••••••••••" aria-label="OpenAI API key"/><button type="button" id="toggleKey" aria-label="Show or hide API key">◉</button></div></div>
+        <div class="small-note"><span>ⓘ</span> <span id="apiHelp">Your key and photos aren't saved by this tool. When AI analysis is enabled, photos pass through this website's server to OpenAI. Without an API key, it creates a generic template. API usage is billed separately.</span></div>
+      </section>
+      <button class="generate-button" id="generateButton" type="button"><span id="generateButtonText">✦ &nbsp; Generate identity-locked JSON</span><span class="generate-arrow">↗</span></button>
+      <div class="message" id="statusMessage" role="status" aria-live="polite"></div>
+      <div class="rule-banner"><span class="shield-symbol">⬡</span><div><strong>Identity comes first. Always.</strong><p>The target image can change the outfit, setting, pose and lighting — never your underlying facial anatomy or original body shape.</p></div><span class="rule-tag">HARD LOCK</span></div>
+    </div>
+
+    <aside class="output-column">
+      <div class="section-heading output-heading"><span class="heading-number">03</span><span>Generated output</span><span id="readyLabel" class="status-pill">NOT GENERATED</span></div>
+      <div class="output-card">
+        <div class="output-header"><div class="segmented"><button class="tab active" type="button" id="jsonTab">JSON prompt</button><button class="tab" type="button" id="textTab">Text prompt</button></div><span class="syntax-label">{ JSON }</span></div>
+        <div class="output-body" id="outputBody"><div class="output-placeholder" id="outputPlaceholder"><div class="placeholder-code"><span>{</span><div class="pl-indent"><i>"identity_lock"</i>: <b>"MAXIMUM"</b>,</div><div class="pl-indent"><i>"scene"</i>: <b>"your target"</b>,</div><div class="pl-indent"><i>"face_changed"</i>: <strong>false</strong></div><span>}</span></div><div class="placeholder-bottom"><span class="spark">✧</span><h3>Your prompt appears here</h3><p>Add your photos on the left and generate a JSON prompt ready to use with image AI.</p></div></div><pre id="outputCode" hidden></pre></div>
+        <div class="output-actions"><button class="action-btn primary-action" type="button" id="copyButton" disabled><span>⧉</span> Copy <span id="copyKind">JSON</span></button><button class="action-btn" type="button" id="downloadButton" disabled><span>⇩</span> Download JSON</button></div>
+      </div>
+      <div class="workflow-notes" id="how-it-works"><div class="workflow-head"><span>✳</span><b>How to use the result</b></div><ol><li>Upload 1–4 pictures showing <strong>your real face and body</strong>.</li><li>Upload or paste the reference image to recreate.</li><li>Generate and copy your JSON prompt.</li><li>In your image generator, <strong>attach both sets of original photos alongside the prompt</strong>, in the same order.</li></ol><p class="limitations">No prompt can mathematically guarantee a perfect identity match. An image model must support image references to use this prompt effectively.</p></div>
+    </aside>
+  </main>
+  <footer class="footer"><span>IDENTITY / STUDIO</span><span>Built for identity consistency • For your private workspace</span><button type="button" id="clearAll">Clear all images &amp; output ↻</button></footer>
+</div>
+</body>
+</html>
